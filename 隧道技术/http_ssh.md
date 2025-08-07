@@ -4,7 +4,9 @@
 ssh目前只能通讯，不能上线，目前没有c2工具能利用ssh上线。     [192.168.2.11](http://192.168.2.11/) 192.168.139.222 都是web机。
 
 
-## http:
+# http:
+
+ss
 http隧道上线一般意义不大，能通过http上线就能通过正反向上线
 
 ![1732609043452](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942064.png)
