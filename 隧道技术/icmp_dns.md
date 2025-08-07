@@ -1,5 +1,5 @@
 # 隧道技术 icmp dns
-
+# icmp
 ![1732452050196](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942043.png)
 ## icmp
 出网：看之间是否能通讯
