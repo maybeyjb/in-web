@@ -27,7 +27,7 @@
 关闭icmp协议: 
 
 ![1732462439111](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942047.png)
-## icmp
+## 是icmp
 这里的环境复现是：其中kali的ip  192.168.139.128       web :192.168.139.222       192.168.2.11
 
 ![1732523729550](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942048.png)
