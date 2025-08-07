@@ -11,7 +11,7 @@
 出网就是出站----防火墙
 
   配置
-
+## icmp
 将出站规则都开启，执行后面没有上线
 
 ![1732461696691](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942044.png)
@@ -27,10 +27,11 @@
 关闭icmp协议: 
 
 ![1732462439111](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942047.png)
+
 这里的环境复现是：其中kali的ip  192.168.139.128       web :192.168.139.222       192.168.2.11
 
 ![1732523729550](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942048.png)
-## icmp
+
   上线  使用工具 pingtunnel
 
 ./pingtunnel -type server
