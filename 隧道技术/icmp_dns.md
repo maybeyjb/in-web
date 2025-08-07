@@ -1,11 +1,11 @@
 # 隧道技术 icmp dns
 
 ![1732452050196](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942043.png)
-
+## icmp
 出网：看之间是否能通讯
 
 ​	c2常见的协议
-
+## icmp
 隧道技术：绕过防火墙，实现通讯能够上线
 
 出网就是出站----防火墙
