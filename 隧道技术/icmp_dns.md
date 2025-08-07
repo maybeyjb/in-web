@@ -34,7 +34,7 @@
 
   上线  使用工具 pingtunnel
 
-## ./pingtunnel -type server
+ ./pingtunnel -type server
 
 工具将本地tcp流量用自己的6666端口流量转发到192.168.139.141:7777 上面（将tcp流量封装成icmp转发）
 
