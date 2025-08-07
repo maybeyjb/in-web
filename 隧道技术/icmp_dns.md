@@ -28,7 +28,7 @@
 
 ![1732462439111](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942047.png)
 
-### icmp:
+### icmp
 
 这里的环境复现是：其中kali的ip  192.168.139.128       web :192.168.139.222       192.168.2.11
 
@@ -88,7 +88,7 @@ pingtunnel -type client -l :6666 -s 192.168.139.141 -t 192.168.139.141:7777 -tcp
 
 这里还得需要一个dns的域名。省略这个
 
-### msb:
+### msb
 
   MSF icmp实现上线。msf的dns过时，已下架。
 
