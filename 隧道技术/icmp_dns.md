@@ -1,17 +1,17 @@
 # 隧道技术 icmp dns
-# icmp
+
 ![1732452050196](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942043.png)
-## icmp
+
 出网：看之间是否能通讯
 
 ​	c2常见的协议
-## icmp
+
 隧道技术：绕过防火墙，实现通讯能够上线
 
 出网就是出站----防火墙
 
   配置
-## icmp
+
 将出站规则都开启，执行后面没有上线
 
 ![1732461696691](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942044.png)
@@ -27,7 +27,7 @@
 关闭icmp协议: 
 
 ![1732462439111](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942047.png)
-
+## icmp
 这里的环境复现是：其中kali的ip  192.168.139.128       web :192.168.139.222       192.168.2.11
 
 ![1732523729550](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942048.png)
@@ -86,7 +86,7 @@ pingtunnel -type client -l :6666 -s 192.168.139.141 -t 192.168.139.141:7777 -tcp
 
 这里还得需要一个dns的域名。省略这个
 
-### msb
+  ### msb
 
   MSF icmp实现上线。msf的dns过时，已下架。
 
