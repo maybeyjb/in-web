@@ -30,7 +30,7 @@
 这里的环境复现是：其中kali的ip  192.168.139.128       web :192.168.139.222       192.168.2.11
 
 ![1732523729550](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942048.png)
-
+## icmp
   上线  使用工具 pingtunnel
 
 ./pingtunnel -type server
