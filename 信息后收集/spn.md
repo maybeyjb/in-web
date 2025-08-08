@@ -26,6 +26,7 @@ net time /domain 获取主域名，其实这个就是主域的计算机名，再
 
 ![1732773435662](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942117.png)
 
+#### spn
 3、定性被控机     
 
   setspn,         spn技术 获取域内成员主机和基本服务。SPN 可以解决防火墙阻止的，SPN通讯时防火墙是放行的（白名单）。还可以通过-setspn技术来获取。
@@ -36,6 +37,7 @@ net time /domain 获取主域名，其实这个就是主域的计算机名，再
 
 ![1732777087751](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942119.png)
 
+#### 常用工具
 AVCheck  ，项目对杀软进行识别并快速发现杀软：
 
 python AVCheck.py 1.txt        <有报错，文件编码问题>            后面还可以用在线杀软识别。
