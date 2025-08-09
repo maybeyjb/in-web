@@ -92,3 +92,7 @@ http一般不用来上线，http能上线的话，那么正反向也可以用来
 执行上线文件，成功linux系统（kali ）上线：
 
 ![1732625831874](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942080.png)
+
+# 总结
+使用Neo-reGeorg-5.2.0工具搭建http隧道---socks代理，与目标建立通讯。实现上传webshell
+演示cs上线linux系统
