@@ -8,7 +8,7 @@
 
 ![1734795775887](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942625.png)
 
-##### 逃逸
+##### docker逃逸
 
 docker逃逸目的主要是拿下宿主机权限能和后面网段建立通讯， -- 这里入口是shiro框架（rememberme），直接工具梭哈。
 
