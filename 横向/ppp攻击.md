@@ -13,19 +13,23 @@ pass the key（密钥传递攻击，简称ptk）
 
 ### pth:   hash传递
 
-可以看出来基本现在都是ntml的hash，， 
+可以看出来基本现在都是ntml的hash。
 
 ![1733151600149](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942196.png)
 
  LM和NTML两个hash值的种类。前面的Wmi  smb 都是hash的pth攻击。
+ 主要还是前面的协议和服务两个节里的横向手法，主要为pth攻击
 
-###### NTML
+
+#### NTML
+NTLM 是 Windows 系统中经典的认证协议，基于挑战 - 响应机制，依赖用户密码的 NTLM Hash 完成认证。
 
 抓取明文密码时候，以NTML的hash为准：
 
 ![1733304997753](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942197.png)
 
 ![1733305018372](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942198.png)
+#### hashcat
 
  hash解密          cmd5在线，工具：https://hashcat.net/hashcat/   不过原理都是hash碰撞。
 
@@ -67,7 +71,7 @@ ping 一下域控（DC是前面收集到的ip）
 
 ![1733307707298](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942205.png)
 
-生成票据文件
+ms14漏洞 -- 生成票据文件
 
 ![1733318582880](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942206.png)
 
@@ -85,6 +89,7 @@ ping 一下域控（DC是前面收集到的ip）
 
 ![1733318787834](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942209.png)
 
+#### DC上线： 
 下来就上传正向后门到目标机器在执行上线----思路是上传后建立一个服务（类似于定时服务一样），然后执行服务，用web机连接connect ，得到DC权限：
 
 先查看当前目录下的后门文件 4444.exe，在copy到DC机器：
@@ -97,7 +102,7 @@ copy：
 
 
 
-####  kekeo:
+####  kekeo工具:
 
 也是一款工具，使用hash值来换成票据。直接调用cmd。利用获取的NTLM生成新的票据尝试认证（pth（hash）的攻击转为ptt(票据)攻击）
 
@@ -133,7 +138,8 @@ mimikatz kerberos::ask /target:MSSQLSvc/SqlServer.god.org:1433
 
 下来只需要查看klist看是什么加密类型：--会话密钥类型是不是rc4,
 
-工具检测（需要考虑免杀和通讯问题） ：
+###### 工具检测
+（需要考虑免杀和通讯问题） ：
 
 Rubeus kerberoast     检测有没有rc4加密，这里是aes加密。如果为rc4加密的话会破解出来他的hash值
 
@@ -157,11 +163,11 @@ impacket-getuserspns        这个破解后为hash值。用py文件建立代理�
 
 ![1733387565057](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942221.png)
 
-手工查看：
+###### 手工查看：
 
 ![1733387680076](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942222.png)
 
-###### 票据破解：
+##### 票据破解：
 
 先看spn服务，在找到能通讯的服务--msssql，在用mimikate产生票据，最后导出并破解：
 
@@ -183,7 +189,7 @@ impacket-getuserspns        这个破解后为hash值。用py文件建立代理�
 
 ![1733388684919](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942227.png)
 
-###### hash破解：
+##### hash破解：
 
 将刚才Rubeus 得到的hash或者impacket-getuserspns得到的hash.txt用hashcat进行破解：
 
@@ -203,3 +209,10 @@ impacket-getuserspns        这个破解后为hash值。用py文件建立代理�
 
 鸡肋：得有图形化UI页面，这里不适用。最后弹出来的在目标机桌面终端操作
 
+## 总结：
+pth关注前面的协议和服务的横向手法，都是利用hash进行横向移动
+ptt攻击，利用票据进行横向。获取目标（DC）的SID值，用ms14漏洞生成门票，mimikate将生成的门票导入到目标（DC）中，这时就可以与目标（DC）建立连接了。下来在上传正向后门到目标（DC）建立一个服务（定时服务），然后执行服务，用web机连接connect ，实现上线目标（DC）
+票据这里还牵扯到一个加密，如果为RC4类型，可以先获取其hash，在破解票据的hash值。或者mimikate导出票据直接破解票据也可以。
+kekeo：将hash值转换成票据，pth（hash）的攻击转为ptt(票据)攻击
+
+ptk就比较不太实用，因为为aes加密。
