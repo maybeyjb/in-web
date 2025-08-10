@@ -22,7 +22,7 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 ![1734267076853](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942349.png)
 
-#### 10
+### 10机
 
 目标机上存在strut2的历史漏洞：
 
@@ -32,6 +32,7 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 ![1734267300129](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942351.png)
 
+#### 脏牛提权
 .c上传放到目标的tmp目录，然后gcc编译目标.c文件成可执行文件（当然这里目标机是有gcc环境的）
 
 ![1734267559024](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942352.png)
@@ -50,7 +51,7 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 ![1734268220373](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942355.png)
 
-#### 30：
+### 30机：
 
 得到root权限后查看历史命令发现用过密钥文件登录过其他主机，这里就将密钥文件下载到本地，然后利用文件登录另一台目标主机（30主机）-----------这里得到30主机后因为是通过ssh密钥连接，但是没有8080端口权限，因为50机器的3306是和30机器的8080端口是有关系的，所以这里需要先得到30主机的8080端口权限。
 
@@ -70,7 +71,8 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 ![1734273923643](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942359.png)
 
-​      30主机的8080在DMZ区，所以本地是访问不到，需要在10建立节点通讯（这里是因为30在DMZ区域，本地只能访问到22端口，访问不到8080，所以建立30节点也不行，而10访问30时可以访问到30的8080端口），这里是linux的msf创建节点。
+​30主机的8080在DMZ区，所以本地是访问不到，需要在10建立节点通讯（这里是因为30在DMZ区域，本地只能访问到22端口，访问不到8080，所以建立30节点也不行，而10访问30时可以访问到30的8080端口），
+#### linux创建socks节点
 
 ![1734270464496](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942360.png)
 
@@ -96,7 +98,7 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 ![1734271724580](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942366.png)
 
-#### 50：
+### 50机---jenkins
 
 找到jenkins路径后打开发现有credentials,这里是存放密钥的地方
 
@@ -128,7 +130,8 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 所以下面这样让文件只允许一个人（本地用户）访问---（这类文件应该都一样）
 
-![1734273694441](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942373.png)
+<img width="1227" height="668" alt="image" src="https://github.com/user-attachments/assets/924cf0dc-1685-4a07-89d6-fe0ea8d0a66b" />
+
 
 成功：
 
@@ -138,7 +141,8 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 
 ![1734274219512](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942375.png)
 
-下来接着上面的解密，已经得到了解密的密码，需要3个解密文件。获取：
+#### 解密
+下来接着上面的解密，已经得到了解密的密码，需要3个解密文件。获取（在已经控制的30机子上获取）：
 
 ![1734274452407](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942376.png)
 
@@ -159,4 +163,11 @@ nmap扫太慢了。就是扫到了3个ip  分别就是图上的3个ip，这里�
 提权没有设置难度，直接就是sudo su   （这是提到最高权限的命令，而不是su root）.....：
 
 ![1734275991667](https://cdn.jsdelivr.net/gh/maybeyjb/blue-team/img/202506170942381.png)
+## 总结：
+
+3台linux机子的横向演示
+10机子的提权+维权
+30机子：本机是通过密钥对实现ssh横向的         而8080端口代理出网---linux---msf建立socks代理  
+50机子通过解密获取到账密实现横向 
+
 
